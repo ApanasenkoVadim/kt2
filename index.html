@@ -1,0 +1,96 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table Management</title>
+</head>
+<body onload="updateTable()">
+    <table>
+        <thead>
+            <tr>
+                <th>Ключ</th>
+                <th>Значение</th>
+                <th>Удалить</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+           
+        </tbody>
+    </table>
+    <button onclick="clearStorage()">Очистить хранилище</button>
+    <script>
+        const exampleData = {
+            'Car1': 'bmw',
+            'Car2': 'audi',
+            'Car3': 'nissan'
+        };
+
+
+        function initializeStorage() {
+            localStorage.setItem('tableData', JSON.stringify(exampleData));
+        }
+
+
+        function updateTable() {
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = ''; 
+        
+            const storage = getStorage(); 
+            const keys = Object.keys(storage);
+        
+            if (keys.length === 0) {
+                const emptyHeader = document.createElement('tr');
+                emptyHeader.innerHTML = '<td colspan="3">Нет данных</td>';
+                tbody.appendChild(emptyHeader);
+            } else {
+                keys.forEach(key => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${key}</td>
+                        <td>${storage[key]}</td>
+                        <td><span onclick="deleteItem('${key}')">X</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+
+        function getStorage() {
+            return JSON.parse(localStorage.getItem('tableData')) || {};
+        }
+
+
+        function saveItem(key, value) {
+            const storage = getStorage();
+            storage[key] = value;
+            localStorage.setItem('tableData', JSON.stringify(storage));
+            updateTable();
+        }
+
+
+        function deleteItem(key) {
+            if (confirm('Вы уверены, что хотите удалить эту запись?')) {
+                const storage = getStorage();
+                delete storage[key];
+                localStorage.setItem('tableData', JSON.stringify(storage));
+                updateTable();
+            }
+        }
+
+
+        function clearStorage() {
+            if (confirm('Вы уверены, что хотите полностью очистить локальное хранилище?')) {
+                localStorage.removeItem('tableData');
+                updateTable();
+            }
+        }
+
+
+        window.onload = function() {
+            initializeStorage();
+            updateTable();
+        };
+    </script>
+</body>
+</html>
